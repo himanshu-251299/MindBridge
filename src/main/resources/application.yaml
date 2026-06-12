@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: mindbridge
+
+  # ─────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mindbridge
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate           # Flyway handles schema — never use create/update in prod
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  # ─────────────────────────────────────
+  # Flyway Migrations
+  # ─────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # ─────────────────────────────────────
+  # Redis Cache
+  # ─────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # ─────────────────────────────────────
+  # Google Gemini (Spring AI)
+  # Get your free API key at:
+  # https://aistudio.google.com/apikey
+  # ─────────────────────────────────────
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:your-gemini-api-key-here}
+        chat:
+          options:
+            model: gemini-2.0-flash     # Fast + free tier friendly
+            temperature: 0.7
+            max-output-tokens: 1024
+
+# ─────────────────────────────────────
+# Server
+# ─────────────────────────────────────
+server:
+  port: 8080
+  error:
+    include-message: always
+
+# ─────────────────────────────────────
+# JWT Configuration
+# ─────────────────────────────────────
+app:
+  jwt:
+    secret: ${JWT_SECRET:mindbridge-super-secret-key-change-in-production-min-256-bits}
+    expiration-ms: 86400000    # 24 hours
+
+# ─────────────────────────────────────
+# Actuator (Health & Metrics)
+# ─────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ─────────────────────────────────────
+# Logging
+# ─────────────────────────────────────
+logging:
+  level:
+    com.mindbridge: DEBUG
+    org.springframework.ai: INFO
+    org.springframework.security: WARN
