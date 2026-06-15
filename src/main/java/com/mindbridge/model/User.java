@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "employees")
+@Table(name = "users")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Employee {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -19,30 +19,28 @@ public class Employee {
     @Column(name = "company_id", nullable = false)
     private UUID companyId;
 
-    @Column(name = "team_id")
-    private UUID teamId;
-
-    @Column(name = "slack_user_id")
-    private String slackUserId;
-
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password")
-    private String password;               // BCrypt hashed — set on self-registration
+    @Column(name = "password", nullable = false)
+    private String password;                  // BCrypt hashed
 
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "role")
-    @Builder.Default
-    private String role = "EMPLOYEE";
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.HR_MANAGER;
 
     @Column(name = "is_active")
-    @Builder.Default
     private boolean active = true;
 
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public enum Role {
+        HR_MANAGER,
+        ADMIN
+    }
 }
