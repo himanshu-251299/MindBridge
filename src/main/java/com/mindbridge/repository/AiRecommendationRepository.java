@@ -1,0 +1,17 @@
+package com.mindbridge.repository;
+
+import com.mindbridge.model.AiRecommendation;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface AiRecommendationRepository extends JpaRepository<AiRecommendation, UUID> {
+
+    List<AiRecommendation> findByInsightIdOrderByPriorityAsc(UUID insightId);
+
+    List<AiRecommendation> findByCompanyIdAndStatusOrderByCreatedAtDesc(
+        UUID companyId, String status);
+}
