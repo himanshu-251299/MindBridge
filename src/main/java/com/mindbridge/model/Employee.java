@@ -29,10 +29,13 @@ public class Employee {
     private String email;
 
     @Column(name = "password")
-    private String password;               // BCrypt hashed — set on self-registration
+    private String password;
 
     @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "department")
+    private String department;
 
     @Column(name = "role")
     @Builder.Default

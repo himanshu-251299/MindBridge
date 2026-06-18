@@ -4,6 +4,7 @@ import com.mindbridge.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,12 +30,14 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
+                .cors(cors -> {})
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(
@@ -44,6 +47,14 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers("/api/dashboard/**")
+                        .hasAnyRole("HR_MANAGER", "ADMIN")
+
+                        // ── Employee list/stats → HR only ───────────────────
+                        .requestMatchers("/api/employees/*/list")
+                        .hasAnyRole("HR_MANAGER", "ADMIN")
+                        .requestMatchers("/api/employees/*/stats")
+                        .hasAnyRole("HR_MANAGER", "ADMIN")
+                        .requestMatchers("/api/employees/*/departments")
                         .hasAnyRole("HR_MANAGER", "ADMIN")
                         .requestMatchers("/api/checkin/**")
                         .authenticated()
@@ -64,7 +75,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception {
+            AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
     }
 
